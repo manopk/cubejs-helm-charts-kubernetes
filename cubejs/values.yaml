@@ -139,7 +139,7 @@ cubestoreWorker:
 ingress:
   enabled: false
   className: "kong"
-  annotations: {}
+  annotations:
     kubernetes.io/ingress.class: kong
     # kubernetes.io/tls-acme: "true"
   hosts:
@@ -147,7 +147,7 @@ ingress:
       paths:
         - path: /
           pathType: ImplementationSpecific
-  tls: []
+  tls:
     - secretName: star-oncb-tls
       hosts:
         - oncbform-dev.oncb.go.th
