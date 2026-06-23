@@ -9,7 +9,7 @@ cubeReplicas:
   cubeApi: 3
   cubeRefreshWorker: 1
   cubestoreRouter: 2
-  cubestoreWorker: 1
+  cubestoreWorker: 2
 
 # image:
 #   repository: cubejs/cube
@@ -122,7 +122,7 @@ cubestoreWorker:
     type: ClusterIP
     port: 10001
     service_port: 10001
-  replicas: 1
+  replicas: 2
   configmap: 
     name: cubestoreworker-cm 
   pvc:
