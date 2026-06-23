@@ -26,3 +26,5 @@ The env variables are present in the respective deployment templates.
  1) Ability to load schemas from git or other sources with init containers
  2) Ability to dynamical create replicas for the Cubestore workers and add them to the Cube router and worker deployment.
  3) Extend this to an operator method of deployment (May become another Repo altogether) 
+
+## Test ONCBK8S 
