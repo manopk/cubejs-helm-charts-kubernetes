@@ -3,6 +3,7 @@ apiVersion: v1
 metadata:
   name: cubeapi-pvc
 spec:
+  storageClassName: standard-ssd
   accessModes:
     - ReadWriteOnce
   resources:
