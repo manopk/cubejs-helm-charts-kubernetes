@@ -42,7 +42,13 @@ spec:
       initContainers:
         - name: init-router
           image: busybox
-          command: ['sh', '-c', 'until nc -vz cubestore-router:9999; do echo "Waiting for router"; sleep 2; done;']
+          command:
+            - sh
+            - -c
+            - >-
+              until nc -z cubestore-router {{ .Values.cubestoreRouter.service.port }};
+              do echo "Waiting for cubestore-router:{{ .Values.cubestoreRouter.service.port }}"; sleep 3;
+              done
       containers:
         - name: cubestore-worker
           env:
