@@ -135,6 +135,21 @@ cubestoreWorker:
       CUBESTORE_META_ADDR: "cubestore-router:9999"
       CUBEJS_LOG_LEVEL: "trace"
 
+objectStorage:
+  enabled: true
+  provider: ceph            # s3 | ceph  (ใช้ ceph สำหรับ on-premises Ceph RADOS Gateway)
+  bucket: "cubejs-data"
+  region: "default"         # AWS: ระบุ region จริง | Ceph: ใส่ค่าใดก็ได้ เช่น "default" หรือ "us-east-1"
+  endpoint: "https://cloud-storage.oncb.go.th/ONCB-Form-Staging"             # Ceph RGW: http://ceph-rgw.storage.svc.cluster.local:7480  |  AWS S3: ว่าง
+  subPath: "cubejs/prod"    # (optional) subfolder ภายใน bucket เช่น "cubejs/prod" แยกต่อ environment
+  credentials:
+    existingSecret: "cubestore-objectstorage-secret"  # สร้างด้วย kubectl create secret ก่อน deploy
+                                                       # Secret ต้องมี key:
+                                                       #   CUBESTORE_AWS_ACCESS_KEY_ID
+                                                       #   CUBESTORE_AWS_SECRET_ACCESS_KEY
+    accessKeyId: ""      # ใช้เฉพาะถ้า existingSecret ว่าง (Helm จะ auto-create Secret)
+    secretAccessKey: ""  # ใช้เฉพาะถ้า existingSecret ว่าง
+
 ingress:
   enabled: false
   className: "kong"

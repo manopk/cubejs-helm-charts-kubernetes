@@ -1,8 +1,26 @@
+{{- if and .Values.objectStorage.enabled (not .Values.objectStorage.bucket) }}
+  {{- fail "objectStorage.bucket is required when objectStorage.enabled is true" }}
+{{- end }}
+{{- if and .Values.objectStorage.enabled (eq .Values.objectStorage.provider "ceph") (not .Values.objectStorage.endpoint) }}
+  {{- fail "objectStorage.endpoint is required when provider is ceph" }}
+{{- end }}
 apiVersion: v1
 data:
   {{- range $key, $val := .Values.cubestoreRouter.env.var }}
+  {{- if not (and $.Values.objectStorage.enabled (eq $key "CUBESTORE_REMOTE_DIR")) }}
   {{ $key }}: {{ $val | quote }}
-  {{- end}}
+  {{- end }}
+  {{- end }}
+  {{- if .Values.objectStorage.enabled }}
+  CUBESTORE_S3_BUCKET: {{ .Values.objectStorage.bucket | quote }}
+  CUBESTORE_S3_REGION: {{ .Values.objectStorage.region | quote }}
+  {{- if .Values.objectStorage.endpoint }}
+  CUBESTORE_S3_ENDPOINT: {{ .Values.objectStorage.endpoint | quote }}
+  {{- end }}
+  {{- if .Values.objectStorage.subPath }}
+  CUBESTORE_S3_SUB_PATH: {{ .Values.objectStorage.subPath | quote }}
+  {{- end }}
+  {{- end }}
 
 kind: "ConfigMap"
 metadata:

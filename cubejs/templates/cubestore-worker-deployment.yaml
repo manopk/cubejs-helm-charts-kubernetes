@@ -33,14 +33,16 @@ spec:
       serviceAccountName: {{ include "chart.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- if not .Values.objectStorage.enabled }}
       volumes:
         - name: cubestore-pv
           persistentVolumeClaim:
             claimName: cubestore-pvc
+      {{- end }}
       initContainers:
         - name: init-router
           image: busybox
-          command: ['sh', '-c', 'until nc -vz cubestore-router:9999; do echo "Waiting for router"; sleep 2; done;']        
+          command: ['sh', '-c', 'until nc -vz cubestore-router:9999; do echo "Waiting for router"; sleep 2; done;']
       containers:
         - name: cubestore-worker
           env:
@@ -57,9 +59,15 @@ spec:
           envFrom:
           - configMapRef:
               name: {{ .Values.cubestoreWorker.configmap.name }}
+          {{- if .Values.objectStorage.enabled }}
+          - secretRef:
+              name: {{ if .Values.objectStorage.credentials.existingSecret }}{{ .Values.objectStorage.credentials.existingSecret }}{{ else }}cubestore-objectstorage-secret{{ end }}
+          {{- end }}
+          {{- if not .Values.objectStorage.enabled }}
           volumeMounts:
             - mountPath: /cube/data
               name: cubestore-pv
+          {{- end }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.cubestoreWorker.image }}"

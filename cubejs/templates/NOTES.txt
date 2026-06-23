@@ -1,0 +1,27 @@
+CubeJS deployed to namespace: {{ .Values.namespace }}
+
+{{- if .Values.objectStorage.enabled }}
+
+Object Storage: ENABLED ({{ .Values.objectStorage.provider | upper }})
+  Bucket  : {{ .Values.objectStorage.bucket }}
+  Region  : {{ .Values.objectStorage.region }}
+  Endpoint: {{ if .Values.objectStorage.endpoint }}{{ .Values.objectStorage.endpoint }}{{ else }}(AWS S3 default){{ end }}
+  Sub-path: {{ if .Values.objectStorage.subPath }}{{ .Values.objectStorage.subPath }}{{ else }}(none){{ end }}
+  Secret  : {{ if .Values.objectStorage.credentials.existingSecret }}{{ .Values.objectStorage.credentials.existingSecret }} (existing){{ else }}cubestore-objectstorage-secret (auto-created){{ end }}
+
+{{- if eq .Values.objectStorage.provider "ceph" }}
+  [Ceph checklist]
+  - endpoint ต้องเข้าถึงได้จาก namespace {{ .Values.namespace }}
+  - ใช้ HTTP endpoint → Ceph RGW ต้อง disable SSL หรือใช้ HTTPS พร้อม cert ที่ cluster trust
+  - ทดสอบเชื่อมต่อ: kubectl -n {{ .Values.namespace }} run s3test --rm -it --image=amazon/aws-cli
+      --env AWS_ACCESS_KEY_ID=<key> --env AWS_SECRET_ACCESS_KEY=<secret>
+      -- s3 ls s3://{{ .Values.objectStorage.bucket }} --endpoint-url {{ .Values.objectStorage.endpoint }}
+{{- end }}
+
+{{- else }}
+
+Object Storage: DISABLED (ใช้ PVC: cubestore-pvc, storageClass: standard-ssd)
+  หมายเหตุ: PVC ใช้ ReadWriteOnce ซึ่งแบ่งปันข้าม node ไม่ได้
+  แนะนำให้เปิด objectStorage.enabled: true สำหรับ multi-replica setup
+
+{{- end }}
