@@ -1,3 +1,4 @@
+{{- if not .Values.objectStorage.enabled }}
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
@@ -9,3 +10,4 @@ spec:
   resources:
     requests:
       storage: 10Gi
+{{- end }}

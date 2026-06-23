@@ -26,7 +26,7 @@ spec:
         {{- include "chart.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
-      imagePullSecrets: 
+      imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ include "chart.serviceAccountName" . }}
@@ -41,6 +41,10 @@ spec:
           envFrom:
           - configMapRef:
               name: {{ .Values.cubeApi.configmap.name }}
+          - secretRef:
+              name: {{ if .Values.db.existingSecret }}{{ .Values.db.existingSecret }}{{ else }}cubejs-db-secret{{ end }}
+          - secretRef:
+              name: {{ if .Values.extDb.existingSecret }}{{ .Values.extDb.existingSecret }}{{ else }}cubejs-ext-db-secret{{ end }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.cubeApi.image }}"

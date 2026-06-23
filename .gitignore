@@ -1,1 +1,7 @@
 cubejs-oncb*.yaml
+
+# Secret files — ห้าม commit credentials จริง
+*secret*.yaml
+!*secret*.yaml.example
+secret-examples/*.yaml
+!secret-examples/*.yaml.example

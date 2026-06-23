@@ -1,8 +1,13 @@
+{{- $sensitiveKeys := list
+    "CUBEJS_DB_HOST" "CUBEJS_DB_USER" "CUBEJS_DB_PASS" "CUBEJS_DB_PASSWORD"
+    "CUBEJS_EXT_DB_HOST" "CUBEJS_EXT_DB_USER" "CUBEJS_EXT_DB_PASS" "CUBEJS_EXT_DB_PASSWORD" }}
 apiVersion: v1
 data:
   {{- range $key, $val := .Values.cubeApi.env.var }}
+  {{- if not (has $key $sensitiveKeys) }}
   {{ $key }}: {{ $val | quote }}
-  {{- end}}
+  {{- end }}
+  {{- end }}
 
 kind: "ConfigMap"
 metadata:

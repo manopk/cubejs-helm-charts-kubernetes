@@ -33,10 +33,12 @@ spec:
       serviceAccountName: {{ include "chart.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- if not .Values.objectStorage.enabled }}
       volumes:
         - name: cubestore-pv
           persistentVolumeClaim:
             claimName: cubestore-pvc
+      {{- end }}
       containers:
         - name: cubestore-router
           env:
@@ -47,11 +49,17 @@ spec:
           envFrom:
           - configMapRef:
               name: {{ .Values.cubestoreRouter.configmap.name }}
+          {{- if .Values.objectStorage.enabled }}
+          - secretRef:
+              name: {{ if .Values.objectStorage.credentials.existingSecret }}{{ .Values.objectStorage.credentials.existingSecret }}{{ else }}cubestore-objectstorage-secret{{ end }}
+          {{- end }}
           command: ["/bin/sh", "-c"]
           args: ["unset CUBESTORE_WORKER_PORT; ./cubestored"]
+          {{- if not .Values.objectStorage.enabled }}
           volumeMounts:
             - mountPath: /cube/data
               name: cubestore-pv
+          {{- end }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.cubestoreRouter.image }}"
