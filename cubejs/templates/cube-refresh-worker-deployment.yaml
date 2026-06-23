@@ -39,8 +39,12 @@ spec:
       containers:
         - name: {{ .Chart.Name }}
           envFrom:
-          - configMapRef: 
+          - configMapRef:
               name: {{ .Values.cubeRefreshWorker.configmap.name }}
+          - secretRef:
+              name: {{ if .Values.db.existingSecret }}{{ .Values.db.existingSecret }}{{ else }}cubejs-db-secret{{ end }}
+          - secretRef:
+              name: {{ if .Values.extDb.existingSecret }}{{ .Values.extDb.existingSecret }}{{ else }}cubejs-ext-db-secret{{ end }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.cubeRefreshWorker.image }}"
