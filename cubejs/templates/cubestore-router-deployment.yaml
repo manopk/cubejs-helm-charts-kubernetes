@@ -42,6 +42,18 @@ spec:
       containers:
         - name: cubestore-router
           env:
+          {{- if and .Values.objectStorage.enabled (eq .Values.objectStorage.provider "ceph") }}
+          - name: CUBESTORE_MINIO_ACCESS_KEY_ID
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "chart.objectStorageSecret" . }}
+                key: CUBESTORE_AWS_ACCESS_KEY_ID
+          - name: CUBESTORE_MINIO_SECRET_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "chart.objectStorageSecret" . }}
+                key: CUBESTORE_AWS_SECRET_ACCESS_KEY
+          {{- end }}
           - name: CUBESTORE_WORKERS
             value: {{ $count := .Values.cubestoreWorker.replicas | int }}{{- $port := .Values.cubestoreWorker.service.port -}}
               {{- $workers := list -}}{{- range until $count -}}{{- $workers = append $workers (printf "cubestore-worker-%d.cubestore-worker:%v" . $port) -}}{{- end -}}

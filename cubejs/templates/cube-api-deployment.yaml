@@ -34,8 +34,7 @@ spec:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       volumes:
         - name: cubeapi-pv
-          persistentVolumeClaim:
-            claimName: cubeapi-pvc
+          emptyDir: {}
       containers:
         - name: {{ .Chart.Name }}
           envFrom:
@@ -56,16 +55,27 @@ spec:
             - name: http
               containerPort: {{ .Values.cubeApi.service.port }}
               protocol: TCP
-          #livenessProbe:
-          #  httpGet:
-          #    path: /
-          #    port: http
-          #readinessProbe:
-          #  httpGet:
-          #    path: /
-          #    port: http
+          {{- if .Values.cubeApi.probes.enabled }}
+          startupProbe:
+            tcpSocket:
+              port: {{ .Values.cubeApi.service.port }}
+            periodSeconds: 5
+            failureThreshold: 30
+          readinessProbe:
+            tcpSocket:
+              port: {{ .Values.cubeApi.service.port }}
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          livenessProbe:
+            tcpSocket:
+              port: {{ .Values.cubeApi.service.port }}
+            periodSeconds: 20
+            timeoutSeconds: 3
+            failureThreshold: 3
+          {{- end }}
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+            {{- toYaml (default .Values.resources .Values.cubeApi.resources) | nindent 12 }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

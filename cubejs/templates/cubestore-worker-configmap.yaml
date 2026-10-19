@@ -6,6 +6,14 @@ data:
   {{- end }}
   {{- end }}
   {{- if .Values.objectStorage.enabled }}
+  {{- if eq .Values.objectStorage.provider "ceph" }}
+  CUBESTORE_MINIO_SERVER_ENDPOINT: {{ .Values.objectStorage.endpoint | quote }}
+  CUBESTORE_MINIO_BUCKET: {{ .Values.objectStorage.bucket | quote }}
+  CUBESTORE_MINIO_REGION: {{ .Values.objectStorage.region | quote }}
+  {{- if .Values.objectStorage.subPath }}
+  CUBESTORE_MINIO_SUB_PATH: {{ .Values.objectStorage.subPath | quote }}
+  {{- end }}
+  {{- else }}
   CUBESTORE_S3_BUCKET: {{ .Values.objectStorage.bucket | quote }}
   CUBESTORE_S3_REGION: {{ .Values.objectStorage.region | quote }}
   {{- if .Values.objectStorage.endpoint }}
@@ -13,6 +21,7 @@ data:
   {{- end }}
   {{- if .Values.objectStorage.subPath }}
   CUBESTORE_S3_SUB_PATH: {{ .Values.objectStorage.subPath | quote }}
+  {{- end }}
   {{- end }}
   {{- end }}
 

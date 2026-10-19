@@ -52,6 +52,18 @@ spec:
       containers:
         - name: cubestore-worker
           env:
+          {{- if and .Values.objectStorage.enabled (eq .Values.objectStorage.provider "ceph") }}
+          - name: CUBESTORE_MINIO_ACCESS_KEY_ID
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "chart.objectStorageSecret" . }}
+                key: CUBESTORE_AWS_ACCESS_KEY_ID
+          - name: CUBESTORE_MINIO_SECRET_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "chart.objectStorageSecret" . }}
+                key: CUBESTORE_AWS_SECRET_ACCESS_KEY
+          {{- end }}
           - name: POD_NAME
             valueFrom:
               fieldRef:

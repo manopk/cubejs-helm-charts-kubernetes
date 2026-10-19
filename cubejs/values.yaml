@@ -53,15 +53,22 @@ cubeApi:
   replicas: 3
   configmap:
     name: cubeapi-cm
-  pvc:
-    name: cubeapi-pvc
-    mountPath: /cube/conf
+  # /cube/conf ใช้ emptyDir (เดิมเป็น PVC แบบ RWO ซึ่ง mount ข้าม node ไม่ได้ ทำให้ replica ค้าง ContainerCreating)
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: "1"
+      memory: 512Mi
+  probes:
+    enabled: true     # TCP probe บน service.port (เปลี่ยนเป็น httpGet /readyz,/livez ได้เมื่อ DB เชื่อมต่อปกติ)
   env:
     var:
       CUBEJS_DB_TYPE: "postgres"
       CUBEJS_DEV_MODE: "true"
       CUBEJS_DB_NAME: "ONCBDataOperation"
-      CUBEJS_DB_SSL: "true"
+      CUBEJS_DB_SSL: "false"   # PostgreSQL หลักไม่รองรับ TLS; ตั้งเป็น "true" เมื่อฝั่ง DB เปิด SSL แล้ว
       CUBEJS_DEFAULT_API_SCOPES: "graphql,meta,data,jobs"
       CUBEJS_CUBESTORE_HOST: "cubestore-router"
       CUBEJS_LOG_LEVEL: "trace"
@@ -84,7 +91,7 @@ cubeRefreshWorker:
       CUBEJS_DB_TYPE: "postgres"
       CUBEJS_DEV_MODE: "true"
       CUBEJS_DB_NAME: "ONCBDataOperation"
-      CUBEJS_DB_SSL: "true"
+      CUBEJS_DB_SSL: "false"   # PostgreSQL หลักไม่รองรับ TLS; ตั้งเป็น "true" เมื่อฝั่ง DB เปิด SSL แล้ว
       CUBEJS_DEFAULT_API_SCOPES: "graphql,meta,data,jobs"
       CUBEJS_CUBESTORE_HOST: "cubestore-router"
       CUBEJS_REFRESH_WORKER: "true"
@@ -149,8 +156,8 @@ extDb:
 
 objectStorage:
   enabled: true
-  provider: ceph            # s3 | ceph  (ใช้ ceph สำหรับ on-premises Ceph RADOS Gateway)
-  bucket: "cubejs-data"
+  provider: ceph            # s3 | ceph  (ceph = ใช้ CUBESTORE_MINIO_* เพราะ CUBESTORE_S3_* ไม่รองรับ custom endpoint/path-style)
+  bucket: "vcare-dev"       # ต้องมี bucket นี้ใน Ceph และ user มีสิทธิ์ read/write/list/delete
   region: "default"         # AWS: ระบุ region จริง | Ceph: ใส่ค่าใดก็ได้ เช่น "default" หรือ "us-east-1"
   endpoint: "https://cloud-storage.oncb.go.th"  # เฉพาะ host ไม่ใส่ path — S3 client จัดการ bucket path เอง
   subPath: "ONCB-Form-Staging/cubejs/prod"       # path ภายใน bucket: <ceph-namespace>/<app-path>

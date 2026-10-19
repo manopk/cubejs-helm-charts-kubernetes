@@ -60,3 +60,10 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Name of the Secret holding object-storage credentials (CUBESTORE_AWS_ACCESS_KEY_ID / CUBESTORE_AWS_SECRET_ACCESS_KEY)
+*/}}
+{{- define "chart.objectStorageSecret" -}}
+{{- if .Values.objectStorage.credentials.existingSecret }}{{ .Values.objectStorage.credentials.existingSecret }}{{ else }}cubestore-objectstorage-secret{{ end }}
+{{- end }}

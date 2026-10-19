@@ -21,8 +21,7 @@ This HELM charts is deployed in `cubejs` namespace with its own `serviceaccount`
 | `cubestore-router` | ❌ | ✔ | ✔  (headless) | ✔ | ✔ | 
 
 >[!NOTE]
->There will be in total ONLY 2 PVC created . one will be used for both cube-api and cuberefresh-workers and another will be used for both cubestore-router and cubestore-worker.  
->Also note that PVC for cube-api and cube-refresh-worker can be optional but for cubestore-router and cubestore-worker pvc is required as they will store pre-aggregated data. otherwise these pre-aggregated data will be stored in docker volume and we might loose the data incase of pod restart.
+>Since 0.1.3: cube-api and cube-refresh-worker mount `/cube/conf` as an `emptyDir` (the former `cubeapi-pvc` was ReadWriteOnce and could not be mounted across nodes, leaving replicas stuck in ContainerCreating). cubestore-router and cubestore-worker keep pre-aggregations in object storage (Ceph RGW via `CUBESTORE_MINIO_*`, credentials read with `secretKeyRef` from `cubestore-objectstorage-secret`); `cubestore-pvc` is only created when `objectStorage.enabled=false`.
 
 
 ## Docker Images

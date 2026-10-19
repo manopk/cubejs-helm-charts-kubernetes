@@ -34,8 +34,7 @@ spec:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       volumes:
         - name: cubeapi-pv
-          persistentVolumeClaim:
-            claimName: cubeapi-pvc
+          emptyDir: {}
       containers:
         - name: {{ .Chart.Name }}
           envFrom:
